@@ -31,9 +31,11 @@
         .header {
             background-color: var(--primary-color);
             color: white;
-            text-align: center;
             padding: 1rem;
             margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .tab {
             overflow: hidden;
@@ -80,7 +82,7 @@
             border-radius: 4px;
         }
         .btn {
-            background-color: var(--primary-color);
+            background-color: var(--secondary-color);
             color: white;
             border: none;
             padding: 10px 20px;
@@ -88,9 +90,10 @@
             cursor: pointer;
             transition: background-color 0.3s;
             margin-right: 10px;
+            text-decoration: none;
         }
         .btn:hover {
-            background-color: #2980b9;
+            background-color: #34495e;
         }
         #output {
             background-color: #f9f9f9;
@@ -108,11 +111,16 @@
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+        .back-btn {
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
     <div class="header">
+        <a href="index.html" class="btn back-btn">Back to Home</a>
         <h1>Student Programming Environment</h1>
+        <div style="width: 100px;"></div> <!-- This empty div helps center the title -->
     </div>
     <div class="container">
         <div id="exercise-details">
@@ -153,14 +161,14 @@
         codeEditor.setTheme("ace/theme/monokai");
         codeEditor.session.setMode("ace/mode/python");
         codeEditor.setOptions({
-            fontSize: "12pt"  // Changed from 14pt to 12pt
+            fontSize: "12pt"
         });
 
         let testcaseEditor = ace.edit("testcases");
         testcaseEditor.setTheme("ace/theme/monokai");
         testcaseEditor.session.setMode("ace/mode/text");
         testcaseEditor.setOptions({
-            fontSize: "12pt"  // Changed from 14pt to 12pt
+            fontSize: "12pt"
         });
 
         // Sample exercise data
