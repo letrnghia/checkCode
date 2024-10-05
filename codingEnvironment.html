@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Programming Environment</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --background-color: #ecf0f1;
+            --text-color: #34495e;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: var(--secondary-color);
+        }
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            border-radius: 8px 8px 0 0;
+        }
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            font-size: 17px;
+        }
+        .tab button:hover {
+            background-color: #ddd;
+        }
+        .tab button.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            background-color: white;
+        }
+        #editor, #testcases {
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        #language, .file-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        #output {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            margin-top: 1rem;
+        }
+        #exercise-details {
+            margin-bottom: 1rem;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Student Programming Environment</h1>
+    </div>
+    <div class="container">
+        <div id="exercise-details">
+            <h2 id="exercise-title">Exercise Title</h2>
+            <p id="exercise-description">Exercise description will be displayed here.</p>
+        </div>
+
+        <div class="tab">
+            <button class="tablinks active" onclick="openTab(event, 'CodeTab')">Code</button>
+            <button class="tablinks" onclick="openTab(event, 'TestcaseTab')">Testcase</button>
+        </div>
+
+        <div id="CodeTab" class="tabcontent" style="display: block;">
+            <h2>Code Editor</h2>
+            <label for="language">Select Language:</label>
+            <select id="language">
+                <option value="python">Python</option>
+                <option value="javascript">JavaScript</option>
+                <option value="java">Java</option>
+            </select>
+            <div id="editor"></div>
+            <input type="file" id="fileInput" accept=".py,.js,.java" class="file-input">
+        </div>
+
+        <div id="TestcaseTab" class="tabcontent">
+            <h2>Testcases</h2>
+            <div id="testcases"></div>
+        </div>
+
+        <button class="btn" onclick="runCode()">Run Code</button>
+        <button class="btn" onclick="clearCode()">Clear Code</button>
+        <button class="btn" onclick="submitCode()">Submit</button>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        let codeEditor = ace.edit("editor");
+        codeEditor.setTheme("ace/theme/monokai");
+        codeEditor.session.setMode("ace/mode/python");
+        codeEditor.setOptions({
+            fontSize: "12pt"  // Changed from 14pt to 12pt
+        });
+
+        let testcaseEditor = ace.edit("testcases");
+        testcaseEditor.setTheme("ace/theme/monokai");
+        testcaseEditor.session.setMode("ace/mode/text");
+        testcaseEditor.setOptions({
+            fontSize: "12pt"  // Changed from 14pt to 12pt
+        });
+
+        // Sample exercise data
+        const exercise = {
+            title: "Hello World",
+            description: "Write a program that prints 'Hello, World!' to the console.",
+            testCases: [
+                { input: "", expectedOutput: "Hello, World!" }
+            ],
+            templates: {
+                python: '# Your code here',
+                javascript: '// Your code here',
+                java: 'public class Main {\n    public static void main(String[] args) {\n        // Your code here\n    }\n}'
+            }
+        };
+
+        // Populate exercise details
+        document.getElementById('exercise-title').textContent = exercise.title;
+        document.getElementById('exercise-description').textContent = exercise.description;
+
+        // Populate test cases
+        testcaseEditor.setValue(exercise.testCases.map(tc => `Input: ${tc.input}\nExpected Output: ${tc.expectedOutput}`).join('\n\n'));
+
+        document.getElementById('language').addEventListener('change', function() {
+            let language = this.value;
+            codeEditor.session.setMode(`ace/mode/${language}`);
+            codeEditor.setValue(exercise.templates[language]);
+        });
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            let file = e.target.files[0];
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                codeEditor.setValue(e.target.result);
+            };
+            reader.readAsText(file);
+        });
+
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        function runCode() {
+            let code = codeEditor.getValue();
+            let testcases = testcaseEditor.getValue().split('\n\n');
+            let language = document.getElementById('language').value;
+            let output = document.getElementById('output');
+
+            // Simulate running code and testcases
+            output.textContent = `Running ${language} code with ${testcases.length} testcase(s):\n\n`;
+            testcases.forEach((testcase, index) => {
+                if (testcase.trim() !== '') {
+                    output.textContent += `Testcase ${index + 1}:\n${testcase}\n`;
+                    // Simulate random result
+                    let result = Math.random() > 0.5 ? 'Passed' : 'Failed';
+                    output.textContent += `Result: ${result}\n\n`;
+                }
+            });
+        }
+
+        function clearCode() {
+            let language = document.getElementById('language').value;
+            codeEditor.setValue(exercise.templates[language]);
+        }
+
+        function submitCode() {
+            let code = codeEditor.getValue();
+            let language = document.getElementById('language').value;
+            let output = document.getElementById('output');
+
+            // Simulate code submission
+            output.textContent = `Submitted ${language} code for grading:\n\n${code}\n\nWaiting for results...`;
+        }
+
+        // Initialize with Python code
+        codeEditor.setValue(exercise.templates.python);
+    </script>
+</body>
+</html>
